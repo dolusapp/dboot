@@ -1,0 +1,88 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PublishAot>true</PublishAot>
+    <BuiltInComInteropSupport>false</BuiltInComInteropSupport>
+    <!-- Product Information -->
+    <Product>Dolus</Product>
+    <AssemblyName>dboot</AssemblyName>
+    <Version>1.0.0</Version>
+    <Authors>viorae</Authors>
+    <Company>viorae</Company>
+    <Description></Description>
+    <Copyright></Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.106">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Semver" Version="2.3.0" />
+    <PackageReference Include="Sentry.Serilog" Version="4.10.2" />
+    <PackageReference Include="Serilog" Version="4.0.1" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <PublishAot>true</PublishAot>
+    <TrimMode>full</TrimMode>
+    <OptimizationPreference>Size</OptimizationPreference>
+    <IlcOptimizationPreference>Size</IlcOptimizationPreference>
+    <IlcFoldIdenticalMethodBodies>false</IlcFoldIdenticalMethodBodies>
+    <IlcGenerateStackTraceData>false</IlcGenerateStackTraceData>
+    <IlcGenerateCompleteTypeMetadata>false</IlcGenerateCompleteTypeMetadata>
+    <DebuggerSupport>false</DebuggerSupport>
+    <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
+    <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
+    <EventSourceSupport>false</EventSourceSupport>
+    <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
+    <UseSystemResourceKeys>false</UseSystemResourceKeys>
+
+  </PropertyGroup>
+
+
+  <!-- We recommend only using these features for release builds. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+
+    <!-- Configure Sentry org and project -->
+    <SentryOrg>viorae</SentryOrg>
+    <SentryProject>dolus-installer</SentryProject>
+
+    <!--
+    Each of the below features are opt-in.
+    Enable the features you wish to use.
+  -->
+
+    <!-- Automatically creates a release when building your application. -->
+    <SentryCreateRelease>true</SentryCreateRelease>
+
+    <!-- Automatically associates commits with the release. -->
+    <SentrySetCommits>true</SentrySetCommits>
+
+    <!-- Optionally provide explicit flags to the set-commits command -->
+    <SentrySetCommitOptions>--local</SentrySetCommitOptions>
+
+    <!-- Sends symbols to Sentry, enabling symbolication of stack traces. -->
+    <SentryUploadSymbols>true</SentryUploadSymbols>
+
+    <!-- Sends sources to Sentry, enabling display of source context. -->
+    <SentryUploadSources>true</SentryUploadSources>
+
+    <!-- If you are targeting Android, sends proguard mapping file to Sentry. -->
+    <SentryUploadAndroidProguardMapping>false</SentryUploadAndroidProguardMapping>
+
+  </PropertyGroup>
+
+  <Import Project="..\shared\shared.projitems" Label="Shared" />
+
+</Project>
