@@ -37,6 +37,7 @@ namespace dboot.SubSystem
         private HWND _progressBarHandle = HWND.Null;
         private HWND _parentHandle = HWND.Null;
         private HWND _progressHost = HWND.Null;
+        private HWND _dialogHost = HWND.Null;
         private HWND _cancelButtonHandle = HWND.Null;
 
 
@@ -80,6 +81,7 @@ namespace dboot.SubSystem
             }
             set
             {
+                if (_dialogHost.IsNull) return;
                 _title = value;
                 if (_nativeProgressDialog != null) _nativeProgressDialog.SetTitle(_title);
             }
@@ -96,6 +98,7 @@ namespace dboot.SubSystem
             }
             set
             {
+                if (_dialogHost.IsNull) return;
                 _cancelMessage = value;
                 if (_nativeProgressDialog != null) _nativeProgressDialog.SetCancelMsg(_cancelMessage, -1);
             }
@@ -112,6 +115,7 @@ namespace dboot.SubSystem
             }
             set
             {
+                if (_dialogHost.IsNull) return;
                 bool diff = _compactPaths != value;
                 _compactPaths = value;
 
@@ -135,6 +139,7 @@ namespace dboot.SubSystem
             }
             set
             {
+                if (_dialogHost.IsNull) return;
                 if (_state == ProgressDialogState.Stopped)
                     throw new InvalidOperationException("Timer is not running.");
                 else if (_nativeProgressDialog != null)
@@ -153,6 +158,7 @@ namespace dboot.SubSystem
             }
             set
             {
+                if (_dialogHost.IsNull) return;
                 if (_state == ProgressDialogState.Stopped)
                     throw new InvalidOperationException("Timer is not running.");
                 else if (_nativeProgressDialog != null)
@@ -171,6 +177,7 @@ namespace dboot.SubSystem
             }
             set
             {
+                if (_dialogHost.IsNull) return;
                 if (_state == ProgressDialogState.Stopped)
                     throw new InvalidOperationException("Timer is not running.");
                 else if (_nativeProgressDialog != null)
@@ -331,7 +338,7 @@ namespace dboot.SubSystem
             }
             set
             {
-
+                if (_progressBarHandle.IsNull) return;
                 if (value)
                 {
                     if (Environment.OSVersion.Version.Major < 6) throw new NotSupportedException("This option is only available on Windows Vista or greater.");
@@ -501,6 +508,14 @@ namespace dboot.SubSystem
             _cancelMessage = "Aborting...";
         }
 
+        public void BringToFront()
+        {
+            if (PInvoke.BringWindowToTop(_dialogHost))
+            {
+                PInvoke.SetForegroundWindow(_dialogHost);
+            }
+        }
+
 
         private static DestroyIconSafeHandle LoadIconFromByteArray(byte[] iconData)
         {
@@ -621,6 +636,7 @@ namespace dboot.SubSystem
                         {
                             PInvoke.SendMessage(dialogWindow, PInvoke.WM_SETICON, new WPARAM(0), new LPARAM(_icon.DangerousGetHandle()));
                             PInvoke.SendMessage(dialogWindow, PInvoke.WM_SETICON, new WPARAM(1), new LPARAM(_icon.DangerousGetHandle()));
+                            _dialogHost = dialogWindow;
                         }
 
                         // Find progress bar handle

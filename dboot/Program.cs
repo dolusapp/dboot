@@ -118,7 +118,6 @@ ValueTask<StepResult> CheckSystemRequirements(ProgressDialog dialog, Context con
 
 ValueTask<StepResult> CheckIfDolusIsRunning(ProgressDialog dialog, Context context, CancellationToken token)
 {
-    throw new NotImplementedException();
     dialog.Line1 = "Preparing for Installation";
     dialog.Line2 = $"Checking if {Constants.AppName} is currently running...";
     // Dolus is running

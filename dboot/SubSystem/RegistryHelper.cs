@@ -69,7 +69,7 @@ namespace dboot.SubSystem
                 using var subKey = baseKey.OpenSubKey(subKeyPath);
                 if (subKey == null)
                 {
-                    Log.Warning("SubKey not found: {Hive} - {SubKeyPath}", hive, subKeyPath);
+                    Log.Information("SubKey not found: {Hive} - {SubKeyPath}", hive, subKeyPath);
                     return defaultValue;
                 }
 
@@ -258,7 +258,7 @@ namespace dboot.SubSystem
                 using var subKey = baseKey.OpenSubKey(subKeyPath, writable: true);
                 if (subKey == null)
                 {
-                    Log.Warning("SubKey not found: {Hive} - {SubKeyPath}", hive, subKeyPath);
+                    Log.Information("SubKey not found: {Hive} - {SubKeyPath}", hive, subKeyPath);
                     return false;
                 }
 

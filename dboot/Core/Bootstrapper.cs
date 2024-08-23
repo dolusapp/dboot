@@ -182,6 +182,7 @@ public class Bootstrapper
 
     private async Task WaitForUserAcknowledgment(ProgressDialog progressDialog, CancellationToken cancellationToken)
     {
+        progressDialog.BringToFront();
         while (!progressDialog.HasUserCancelled && !cancellationToken.IsCancellationRequested)
         {
             await Task.Delay(100, cancellationToken);

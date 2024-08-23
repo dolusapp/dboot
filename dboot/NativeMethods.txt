@@ -30,3 +30,5 @@ CoInitializeEx
 CoUninitialize
 QueryInterface
 SHGetKnownFolderPath
+BringWindowToTop
+SetForegroundWindow
