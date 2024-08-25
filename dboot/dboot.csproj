@@ -13,9 +13,11 @@
     <Product>Dolus</Product>
     <AssemblyName>dboot</AssemblyName>
     <Version>1.0.0</Version>
+
     <Authors>viorae</Authors>
     <Company>viorae</Company>
-    <Description></Description>
+    <Description>Dolus</Description>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Copyright></Copyright>
   </PropertyGroup>
 
@@ -30,6 +32,10 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <ApplicationIcon>Assets\dolus.ico</ApplicationIcon>
+  </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <PublishAot>true</PublishAot>

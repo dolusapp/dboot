@@ -29,11 +29,15 @@ builder.WithLogging("dboot.log", debug);
 builder.ConfigureDialog((d) =>
 {
     d.Title = Constants.AppName;
-    d.Icon = File.ReadAllBytes("C:\\projects\\Dolus\\App\\Assets\\dolus.ico");
+    d.Icon = Constants.IconData;
     d.AutoClose = false;
 });
 
+#if DEBUG
 builder.UpdateClient("http://localhost:8080");
+#else
+builder.UpdateClient("https://cdn.dolus.app/");
+#endif
 
 builder.WithInstallInfo(i =>
 {
@@ -68,12 +72,16 @@ builder.OnPostInstall(() =>
 {
     var installDirectory = Path.Combine(SystemUtils.GetProgramFilesPath()!, Constants.AppName);
     var mainFile = Path.Combine(installDirectory, $"{Constants.AppName}.exe");
-    Log.Information(mainFile);
+    var startInfo = new ProcessStartInfo(mainFile)
+    {
+        UseShellExecute = true,
+    };
+    Process.Start(startInfo);
     return ValueTask.CompletedTask;
 });
 builder.OnPostUnInstall(() =>
 {
-    var startInfo = new ProcessStartInfo("https://dolus.app")
+    var startInfo = new ProcessStartInfo("https://dolus.app/?uninstalled=true")
     {
         UseShellExecute = true,
     };
@@ -133,9 +141,6 @@ ValueTask<StepResult> CheckIfDolusIsRunning(ProgressDialog dialog, Context conte
         }
         return ValueTask.FromResult(StepResult.Stop);
     }
-
-    // TODO: Implement check if Dolus is running, if so shutdown
-    // For now, we'll just simulate the check
 
     dialog.Line2 = $"{Constants.AppName} is not currently running.";
     dialog.Line3 = "Proceeding with installation...";

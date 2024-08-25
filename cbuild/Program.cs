@@ -167,7 +167,7 @@ class Program
 
         var files = HashFilesAndCheckSignatures(input, fileOps);
 
-        var versionInfo = new VersionInfo(releasePath, fileOps.CalculateFileHash(zipPath), files);
+        var versionInfo = new VersionInfo(releasePath, fileOps.CalculateFileHash(zipPath), files, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString());
         catalog.Branches[branch].Versions[version] = versionInfo;
         catalog.Branches[branch] = catalog.Branches[branch] with { CurrentVersion = version };
 

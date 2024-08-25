@@ -38,24 +38,6 @@ public class UpdateClient : IDisposable
     }
 
     /// <summary>
-    /// Checks for updates by requesting the version information from the update server.
-    /// </summary>
-    /// <returns>The version string if successful; otherwise, null.</returns>
-    public async Task<string> CheckForUpdates()
-    {
-        try
-        {
-            var response = await _httpClient.GetStringAsync("version");
-            return response;
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Error checking for updates");
-            return null;
-        }
-    }
-
-    /// <summary>
     /// Fetches the catalog from the update server and deserializes it into a <see cref="Catalog"/> object.
     /// </summary>
     /// <returns>The <see cref="Catalog"/> object if successful; otherwise, null.</returns>

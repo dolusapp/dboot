@@ -3,7 +3,7 @@ namespace BootstrapperShared;
 
 
 public partial record CatalogFile(string Path, string Hash);
-public partial record VersionInfo(string ReleasePath, string ReleaseHash, List<CatalogFile> Files);
+public partial record VersionInfo(string ReleasePath, string ReleaseHash, List<CatalogFile> Files, string BuildTime);
 public partial record BranchInfo(string Name, string CurrentVersion, Dictionary<string, VersionInfo> Versions)
 {
 

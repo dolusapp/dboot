@@ -151,6 +151,7 @@ public class CatalogJsonConverter : JsonConverter<Catalog>
 
         string? releasePath = null;
         string? releaseHash = null;
+        string? buildTime = null;
         var files = new List<CatalogFile>();
 
         while (reader.Read())
@@ -173,35 +174,40 @@ public class CatalogJsonConverter : JsonConverter<Catalog>
 
             reader.Read();
 
-            if (propertyName == "releasePath")
+            switch (propertyName)
             {
-                releasePath = reader.GetString();
-            }
-            else if (propertyName == "releaseHash")
-            {
-                releaseHash = reader.GetString();
-            }
-            else if (propertyName == "files")
-            {
-                if (reader.TokenType != JsonTokenType.StartArray)
-                {
-                    throw new JsonException("Expected start of files array");
-                }
-
-                while (reader.Read())
-                {
-                    if (reader.TokenType == JsonTokenType.EndArray)
+                case "releasePath":
+                    releasePath = reader.GetString();
+                    break;
+                case "releaseHash":
+                    releaseHash = reader.GetString();
+                    break;
+                case "files":
                     {
+                        if (reader.TokenType != JsonTokenType.StartArray)
+                        {
+                            throw new JsonException("Expected start of files array");
+                        }
+
+                        while (reader.Read())
+                        {
+                            if (reader.TokenType == JsonTokenType.EndArray)
+                            {
+                                break;
+                            }
+
+                            var file = ReadCatalogFile(ref reader, options);
+                            files.Add(file);
+                        }
+
                         break;
                     }
+                case "buildTime":
+                    buildTime = reader.GetString();
+                    break;
 
-                    var file = ReadCatalogFile(ref reader, options);
-                    files.Add(file);
-                }
-            }
-            else
-            {
-                throw new JsonException($"Unexpected property '{propertyName}' in version info object");
+                default:
+                    throw new JsonException($"Unexpected property '{propertyName}' in version info object");
             }
         }
 
@@ -214,8 +220,12 @@ public class CatalogJsonConverter : JsonConverter<Catalog>
         {
             throw new JsonException("VersionInfo missing 'releaseHash'");
         }
+        if (string.IsNullOrEmpty(buildTime))
+        {
+            throw new JsonException("VersionInfo missing 'buildTime'");
+        }
 
-        return new VersionInfo(releasePath, releaseHash, files);
+        return new VersionInfo(releasePath, releaseHash, files, buildTime);
     }
 
     private static CatalogFile ReadCatalogFile(ref Utf8JsonReader reader, JsonSerializerOptions options)
@@ -227,6 +237,7 @@ public class CatalogJsonConverter : JsonConverter<Catalog>
 
         string? path = null;
         string? hash = null;
+
 
         while (reader.Read())
         {
@@ -248,17 +259,17 @@ public class CatalogJsonConverter : JsonConverter<Catalog>
 
             reader.Read();
 
-            if (propertyName == "path")
+            switch (propertyName)
             {
-                path = reader.GetString();
-            }
-            else if (propertyName == "hash")
-            {
-                hash = reader.GetString();
-            }
-            else
-            {
-                throw new JsonException($"Unexpected property '{propertyName}' in file object");
+                case "path":
+                    path = reader.GetString();
+                    break;
+                case "hash":
+                    hash = reader.GetString();
+                    break;
+
+                default:
+                    throw new JsonException($"Unexpected property '{propertyName}' in file object");
             }
         }
 
@@ -349,6 +360,7 @@ public class CatalogJsonConverter : JsonConverter<Catalog>
                 }
 
                 writer.WriteEndArray();
+                writer.WriteString("buildTime", version.Value.BuildTime);
                 writer.WriteEndObject();
             }
 

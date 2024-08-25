@@ -101,7 +101,9 @@ namespace dboot.Builder
             }
             if (!string.IsNullOrEmpty(logName))
             {
-                config.WriteTo.File(logName, rollingInterval: RollingInterval.Day, rollOnFileSizeLimit: true);
+                var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+
+                config.WriteTo.File(Path.Combine(appData, logName), rollingInterval: RollingInterval.Day, rollOnFileSizeLimit: true);
             }
             Log.Logger = config.CreateLogger();
 
