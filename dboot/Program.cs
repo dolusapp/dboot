@@ -402,7 +402,7 @@ unsafe ValueTask<StepResult> CreateShortcut(ProgressDialog dialog, Context conte
 
 
         var shortcutPath = Path.Combine(startMenuPath, "Programs", $"{Constants.AppName}.lnk");
-        var targetPath = Path.Combine(installDirectory, $"{Constants.AppName}.exe");
+        var targetPath = Path.Combine(installDirectory, $"dboot.exe");
 
         // Initialize COM
         PInvoke.CoInitializeEx(default, Windows.Win32.System.Com.COINIT.COINIT_APARTMENTTHREADED);
