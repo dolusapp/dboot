@@ -724,36 +724,14 @@ namespace dboot.SubSystem
                 while (!buttonHandle.IsNull)
                 {
                     Console.WriteLine($"Found a Button handle: {buttonHandle.Value}");
-
-                    int textLength = PInvoke.GetWindowTextLength(buttonHandle);
-                    if (textLength > 0)
+                    _cancelButtonHandle = buttonHandle;
+                    // there could be a hidden button on the UI, so check if its visible
+                    // if it is, it's the cancel button
+                    if (PInvoke.IsWindowVisible(buttonHandle))
                     {
-                        int bufferSize = textLength + 1;
-                        fixed (char* captionChars = new char[bufferSize])
-                        {
-                            if (PInvoke.GetWindowText(buttonHandle, captionChars, bufferSize) > 0)
-                            {
-                                string caption = new string(captionChars);
-                                Console.WriteLine($"Button text: {caption}");
-
-                                if (caption.Equals("Cancel", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    _cancelButtonHandle = buttonHandle;
-                                    Console.WriteLine($"Found Cancel button handle: {_cancelButtonHandle.Value}");
-                                    return;
-                                }
-                            }
-                            else
-                            {
-                                int error = Marshal.GetLastWin32Error();
-                                if (error != 0)
-                                {
-                                    Console.WriteLine($"Warning: Failed to get window text. Error code: {error}");
-                                }
-                            }
-                        }
+                        Console.WriteLine("Found actual handle");
+                        return;
                     }
-
                     buttonHandle = PInvoke.FindWindowEx(ctrlNotifySinkHandle, buttonHandle, "Button", null);
                 }
 
