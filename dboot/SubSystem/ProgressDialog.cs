@@ -636,8 +636,9 @@ namespace dboot.SubSystem
                         {
                             PInvoke.SendMessage(dialogWindow, PInvoke.WM_SETICON, new WPARAM(0), new LPARAM(_icon.DangerousGetHandle()));
                             PInvoke.SendMessage(dialogWindow, PInvoke.WM_SETICON, new WPARAM(1), new LPARAM(_icon.DangerousGetHandle()));
-                            _dialogHost = dialogWindow;
                         }
+
+                        _dialogHost = dialogWindow;
 
                         // Find progress bar handle
                         FindProgressBarAndCancelButton(dialogWindow);
