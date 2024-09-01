@@ -21,6 +21,10 @@ namespace dboot.SubSystem
 
                 var entry = archive.Entries[i];
                 string destinationPath = Path.GetFullPath(Path.Combine(extractPath, entry.FullName));
+                if (ShouldIgnorePath(destinationPath))
+                {
+                    continue;
+                }
 
                 if (IsUpdaterFile(destinationPath, updaterName))
                 {
@@ -39,7 +43,7 @@ namespace dboot.SubSystem
         {
             foreach (var file in Directory.GetFiles(extractPath, "*", SearchOption.AllDirectories))
             {
-                if (!file.Equals(currentUpdaterPath, StringComparison.OrdinalIgnoreCase))
+                if (!file.Equals(currentUpdaterPath, StringComparison.OrdinalIgnoreCase) && !ShouldIgnorePath(file))
                 {
                     TryDeleteFile(file);
                 }
@@ -47,7 +51,10 @@ namespace dboot.SubSystem
 
             foreach (var dir in Directory.GetDirectories(extractPath, "*", SearchOption.AllDirectories).Reverse())
             {
-                TryDeleteDirectory(dir);
+                if (!ShouldIgnorePath(dir))
+                {
+                    TryDeleteDirectory(dir);
+                }
             }
         }
 
@@ -88,6 +95,10 @@ namespace dboot.SubSystem
 
         private static void ExtractEntry(ZipArchiveEntry entry, string destinationPath)
         {
+            if (ShouldIgnorePath(destinationPath))
+            {
+                return;
+            }
             if (entry.FullName.EndsWith("/"))
             {
                 Directory.CreateDirectory(destinationPath);
@@ -129,6 +140,11 @@ namespace dboot.SubSystem
             {
                 Log.Error(ex, "Failed to delete directory: {Directory}", dir);
             }
+        }
+
+        private static bool ShouldIgnorePath(string path)
+        {
+            return path.Contains(".sentry-native", StringComparison.OrdinalIgnoreCase);
         }
 
         private static int CalculateProgress(int processedEntries, int totalEntries) =>

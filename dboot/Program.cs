@@ -528,27 +528,27 @@ ValueTask<StepResult> RemoveFiles(ProgressDialog dialog, Context context, Cancel
 {
     dialog.Line1 = $"Uninstalling {Constants.AppName}";
     dialog.Line2 = "Removing files...";
-
     var installDirectory = context.GetData<string>("install-directory")!;
     var uninstallerPath = Environment.ProcessPath!;
-
     try
     {
         if (Directory.Exists(installDirectory))
         {
-            // Remove files except the uninstaller
+            // Remove files except the uninstaller and skip .sentry-native
             foreach (var file in Directory.GetFiles(installDirectory, "*", SearchOption.AllDirectories))
             {
-                if (!file.Equals(uninstallerPath, StringComparison.OrdinalIgnoreCase))
+                if (!file.Equals(uninstallerPath, StringComparison.OrdinalIgnoreCase) &&
+                    !file.Contains(Path.Combine(installDirectory, ".sentry-native"), StringComparison.OrdinalIgnoreCase))
                 {
                     File.Delete(file);
                 }
             }
 
-            // Remove empty subdirectories
+            // Remove empty subdirectories, skipping .sentry-native
             foreach (var dir in Directory.GetDirectories(installDirectory, "*", SearchOption.AllDirectories).Reverse())
             {
-                if (!dir.Equals(Path.GetDirectoryName(uninstallerPath), StringComparison.OrdinalIgnoreCase))
+                if (!dir.Equals(Path.GetDirectoryName(uninstallerPath), StringComparison.OrdinalIgnoreCase) &&
+                    !dir.Contains(Path.Combine(installDirectory, ".sentry-native"), StringComparison.OrdinalIgnoreCase))
                 {
                     try
                     {
@@ -562,14 +562,21 @@ ValueTask<StepResult> RemoveFiles(ProgressDialog dialog, Context context, Cancel
             }
 
             // Handle the uninstaller file
-            HandleUninstallerFile(uninstallerPath);
+            ScheduleFileForRemoval(uninstallerPath);
 
             // Schedule the installation directory for removal
             ScheduleDirectoryForRemoval(installDirectory);
+
+            // Schedule .sentry-native directory for removal
+            var sentryNativeDir = Path.Combine(installDirectory, ".sentry-native");
+            if (Directory.Exists(sentryNativeDir))
+            {
+                ScheduleDirectoryForRemoval(sentryNativeDir);
+            }
         }
 
         dialog.Line2 = "Files removed successfully.";
-        dialog.Line3 = "Remaining files and directory will be removed on next system restart.";
+        dialog.Line3 = "Remaining files and directories will be removed on next system restart.";
         return ValueTask.FromResult(StepResult.Continue);
     }
     catch (Exception ex)
@@ -582,20 +589,20 @@ ValueTask<StepResult> RemoveFiles(ProgressDialog dialog, Context context, Cancel
     }
 }
 
-void HandleUninstallerFile(string uninstallerPath)
+void ScheduleFileForRemoval(string filePath)
 {
     try
     {
         // Schedule the uninstaller for deletion on next system restart
-        if (!PInvoke.MoveFileEx(uninstallerPath, null, Windows.Win32.Storage.FileSystem.MOVE_FILE_FLAGS.MOVEFILE_DELAY_UNTIL_REBOOT))
+        if (!PInvoke.MoveFileEx(filePath, null, Windows.Win32.Storage.FileSystem.MOVE_FILE_FLAGS.MOVEFILE_DELAY_UNTIL_REBOOT))
         {
             throw new Win32Exception(Marshal.GetLastWin32Error());
         }
-        Log.Information("Scheduled uninstaller for deletion on next system restart: {UninstallerPath}", uninstallerPath);
+        Log.Information("Scheduled uninstaller for deletion on next system restart: {UninstallerPath}", filePath);
     }
     catch (Exception ex)
     {
-        Log.Error(ex, "Failed to schedule uninstaller for deletion: {UninstallerPath}", uninstallerPath);
+        Log.Error(ex, "Failed to schedule uninstaller for deletion: {UninstallerPath}", filePath);
         throw;
     }
 }
@@ -617,6 +624,7 @@ void ScheduleDirectoryForRemoval(string directory)
         throw;
     }
 }
+
 
 
 ValueTask<StepResult> RemoveRegistry(ProgressDialog dialog, Context context, CancellationToken token)
