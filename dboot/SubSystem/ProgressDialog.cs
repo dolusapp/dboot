@@ -828,6 +828,7 @@ namespace dboot.SubSystem
                 if (!_progressBarHandle.IsNull && !Marquee)
                 {
                     // without this the progress bar will NOT update after dialoging the marquee
+                    PInvoke.SendMessage(_progressBarHandle, PBM_SETRANGE, 0, PInvoke.MAKELPARAM(0, (ushort)_maximum));
                     PInvoke.SendMessage(_progressBarHandle, PBM_SETPOS, PInvoke.MAKEWPARAM((ushort)_value, 0), 0);
                 }
             }
